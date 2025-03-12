@@ -11,29 +11,42 @@ class TransactionController extends Controller
     // Tampilkan semua transaksi
     public function index()
     {
-        $transactions = Transaction::where('user_id', Auth::id())->get();
-        return response()->json($transactions);
+        $userId = Auth::id();
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized: No user logged in'], 401);
+        }
+
+        $transactions = Transaction::where('user_id', $userId)->get();
+
+        return $transactions->isEmpty()
+            ? response()->json(['message' => 'No transactions found', 'user_id' => $userId], 404)
+            : response()->json(['transactions' => $transactions]);
     }
 
     // Simpan transaksi baru
     public function store(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric',
-            'description' => 'required|string',
-            'type' => 'required|in:income,expense',
+            'amount' => 'required|numeric|min:1000', // Minimal 1000 biar gak aneh-aneh
+            'description' => 'required|string|min:5|max:255', // Deskripsi minimal 5 karakter
+            'type' => 'required|in:income,expense', // Hanya bisa "income" atau "expense"
             'transaction_date' => 'required|date',
         ]);
 
+        $userId = Auth::id();
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized: No user logged in'], 401);
+        }
+
         $transaction = Transaction::create([
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
             'amount' => $request->amount,
             'description' => $request->description,
             'type' => $request->type,
             'transaction_date' => $request->transaction_date,
         ]);
 
-        return response()->json($transaction, 201);
+        return response()->json(['message' => 'Transaction created', 'transaction' => $transaction], 201);
     }
 
     // Tampilkan satu transaksi
@@ -42,6 +55,7 @@ class TransactionController extends Controller
         if ($transaction->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+
         return response()->json($transaction);
     }
 
@@ -53,14 +67,14 @@ class TransactionController extends Controller
         }
 
         $request->validate([
-            'amount' => 'numeric',
-            'description' => 'string',
-            'type' => 'in:income,expense',
-            'transaction_date' => 'date',
+            'amount' => 'nullable|numeric|min:1000', // Bisa di-update tapi minimal 1000
+            'description' => 'nullable|string|min:5|max:255', // Bisa di-update tapi minimal 5 karakter
+            'type' => 'nullable|in:income,expense',
+            'transaction_date' => 'nullable|date',
         ]);
 
         $transaction->update($request->all());
-        return response()->json($transaction);
+        return response()->json(['message' => 'Transaction updated', 'transaction' => $transaction]);
     }
 
     // Hapus transaksi
