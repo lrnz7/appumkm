@@ -4,87 +4,70 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
     // Tampilkan semua transaksi
     public function index()
     {
-        $userId = Auth::id();
-        if (!$userId) {
-            return response()->json(['message' => 'Unauthorized: No user logged in'], 401);
-        }
+        $transactions = Transaction::all();
+        return view('transactions.index', compact('transactions'));
+    }
 
-        $transactions = Transaction::where('user_id', $userId)->get();
-
-        return $transactions->isEmpty()
-            ? response()->json(['message' => 'No transactions found', 'user_id' => $userId], 404)
-            : response()->json(['transactions' => $transactions]);
+    // Tampilkan form untuk memasukkan transaksi baru
+    public function create()
+    {
+        return view('transactions.create'); // Create a new view for transaction creation
     }
 
     // Simpan transaksi baru
     public function store(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1000', // Minimal 1000 biar gak aneh-aneh
-            'description' => 'required|string|min:5|max:255', // Deskripsi minimal 5 karakter
-            'type' => 'required|in:income,expense', // Hanya bisa "income" atau "expense"
-            'transaction_date' => 'required|date',
+            'customer_name' => 'required|string|min:3|max:100',
+            'product_name' => 'required|string|min:3|max:100',
+            'quantity' => 'required|integer|min:1',
+            'status' => 'required|in:pending,completed,cancelled',
+            'description' => 'required|string|max:255', // Added validation for description
+            'amount' => 'required|numeric', // Added validation for amount
+            'transaction_date' => 'required|date', // Added validation for transaction_date
         ]);
 
-        $userId = Auth::id();
-        if (!$userId) {
-            return response()->json(['message' => 'Unauthorized: No user logged in'], 401);
-        }
-
-        $transaction = Transaction::create([
-            'user_id' => $userId,
-            'amount' => $request->amount,
-            'description' => $request->description,
-            'type' => $request->type,
-            'transaction_date' => $request->transaction_date,
-        ]);
-
-        return response()->json(['message' => 'Transaction created', 'transaction' => $transaction], 201);
+        \Log::info('Incoming request data:', $request->all()); // Log incoming request data
+        $transaction = Transaction::create($request->all()); // Ensure all required fields are included
+        return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil ditambahkan');
     }
 
     // Tampilkan satu transaksi
     public function show(Transaction $transaction)
     {
-        if ($transaction->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        return view('transactions.show', compact('transaction'));
+    }
 
-        return response()->json($transaction);
+    // Edit transaksi
+    public function edit(Transaction $transaction)
+    {
+        return view('transactions.edit', compact('transaction'));
     }
 
     // Update transaksi
     public function update(Request $request, Transaction $transaction)
     {
-        if ($transaction->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $request->validate([
-            'amount' => 'nullable|numeric|min:1000', // Bisa di-update tapi minimal 1000
-            'description' => 'nullable|string|min:5|max:255', // Bisa di-update tapi minimal 5 karakter
-            'type' => 'nullable|in:income,expense',
-            'transaction_date' => 'nullable|date',
+            'customer_name' => 'required|string|min:3|max:100',
+            'product_name' => 'required|string|min:3|max:100',
+            'quantity' => 'required|integer|min:1',
+            'status' => 'required|in:pending,completed,cancelled',
         ]);
 
         $transaction->update($request->all());
-        return response()->json(['message' => 'Transaction updated', 'transaction' => $transaction]);
+        return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil diperbarui');
     }
 
     // Hapus transaksi
     public function destroy(Transaction $transaction)
     {
-        if ($transaction->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $transaction->delete();
-        return response()->json(['message' => 'Transaction deleted']);
+        return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil dihapus');
     }
 }
