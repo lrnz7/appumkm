@@ -2,9 +2,26 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull as Middleware;
+use Closure;
+use Illuminate\Http\Request;
 
-class ConvertEmptyStringsToNull extends Middleware
+class ConvertEmptyStringsToNull
 {
-    //
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        $request->merge(array_map(function ($value) use ($request) {
+
+            return $value === '' ? null : $value;
+        }, $request->all()));
+
+        return $next($request)->withInput();
+
+    }
 }
