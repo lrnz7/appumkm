@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TransactionController; // Import Controller
 use App\Http\Controllers\ProductController; // Import ProductController
+use App\Http\Controllers\AuthController; // Import AuthController
 
 Route::resource('products', ProductController::class); // Resource routes for products
 

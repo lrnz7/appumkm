@@ -1,4 +1,3 @@
-<!-- resources/views/transactions/index.blade.php -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -16,12 +15,13 @@
 
     <a href="{{ route('transactions.create') }}" class="btn btn-primary mb-3">Tambah Transaksi</a>
 
-    <table class="table table-bordered">
+    <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Nama Pelanggan</th>
                 <th>Produk</th>
+                <th>Deskripsi</th>
                 <th>Jumlah</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -32,7 +32,9 @@
                 <tr>
                     <td>{{ $transaction->id }}</td>
                     <td>{{ $transaction->customer_name }}</td>
-                    <td>{{ $transaction->product_name }}</td>
+<td>{{ $transaction->product ? $transaction->product->name : 'Product not found' }}</td>
+
+                    <td>{{ $transaction->description }}</td>
                     <td>{{ $transaction->quantity }}</td>
                     <td>{{ ucfirst($transaction->status) }}</td>
                     <td>

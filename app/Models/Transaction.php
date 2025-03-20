@@ -10,5 +10,5 @@ class Transaction extends Model
     use HasFactory;
 
     protected $table = 'transactions'; // Sesuai nama tabel di database
-    protected $fillable = ['user_id', 'amount', 'status', 'description', 'type', 'transaction_date'];
+    protected $fillable = ['user_id', 'amount', 'status', 'description', 'type', 'transaction_date', 'product_id'];
 }
