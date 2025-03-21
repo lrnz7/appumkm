@@ -16,7 +16,12 @@ class ConvertEmptyStringsToNull
      */
     public function handle(Request $request, Closure $next)
     {
-        $request->merge(array_map(function ($value) use ($request) {
+        $request->merge(array_map(function ($value) {
+            if ($value === '') {
+                return null;
+            }
+            return $value;
+
 
             return $value === '' ? null : $value;
         }, $request->all()));

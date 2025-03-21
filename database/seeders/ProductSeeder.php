@@ -3,37 +3,39 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Product;
-use Illuminate\Support\Facades\Log; // Import Log facade
+use Illuminate\Support\Facades\DB;
 
 class ProductSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
     public function run()
     {
-        Log::info('Running ProductSeeder...'); // Log statement to confirm execution
-
-        Product::create([
-            'name' => 'Iphone 11 64GB Inter',
-            'price' => 999.99,
-            'stock' => 10,
-            'image' => 'image_path_1',
-            'description' => 'Description for Iphone 11 64GB',
-        ]);
-
-        Product::create([
-            'name' => 'Iphone 11 256GB Inter',
-            'price' => 1099.99,
-            'stock' => 5,
-            'image' => 'image_path_2',
-            'description' => 'Description for Iphone 11 256GB',
-        ]);
-
-        Product::create([
-            'name' => 'Iphone 11 Pro 256GB Inter',
-            'price' => 1299.99,
-            'stock' => 3,
-            'image' => 'image_path_3',
-            'description' => 'Description for Iphone 11 Pro 256GB',
+        DB::table('products')->insert([
+            [
+                'name' => 'Iphone 11 64GB Inter',
+                'price' => 999.99,
+                'stock' => 8,
+                'image' => 'image_path_1',
+                'description' => 'Description for Iphone 11 64GB',
+            ],
+            [
+                'name' => 'Iphone 11 256GB Inter',
+                'price' => 1099.99,
+                'stock' => 3,
+                'image' => 'image_path_2',
+                'description' => 'Description for Iphone 11 256GB',
+            ],
+            [
+                'name' => 'Iphone 11 Pro 256GB Inter',
+                'price' => 1299.99,
+                'stock' => 0,
+                'image' => 'image_path_3',
+                'description' => 'Description for Iphone 11 Pro 256GB',
+            ],
         ]);
     }
 }

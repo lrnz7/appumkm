@@ -17,6 +17,8 @@ class ProductController extends Controller
         $products = Product::all(); // Fetch all products for the catalog
         return view('products.catalog', compact('products')); // Return the catalog view
     }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -53,7 +55,11 @@ class ProductController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Product::create($request->all()); // Create a new product
+        try {
+            Product::create($request->all()); // Create a new product
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to create product.'])->withInput();
+        }
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
@@ -96,7 +102,11 @@ class ProductController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $product->update($request->all()); // Update the product
+        try {
+            $product->update($request->all()); // Update the product
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to update product.'])->withInput();
+        }
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
@@ -108,7 +118,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete(); // Delete the product
+        try {
+            $product->delete(); // Delete the product
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to delete product.']);
+        }
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }

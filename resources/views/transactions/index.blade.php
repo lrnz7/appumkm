@@ -23,6 +23,8 @@
                 <th>Produk</th>
                 <th>Deskripsi</th>
                 <th>Jumlah</th>
+                <th>Tanggal Transaksi</th>
+
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
@@ -36,6 +38,8 @@
 
                     <td>{{ $transaction->description }}</td>
                     <td>{{ $transaction->quantity }}</td>
+                    <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-m-Y H:i:s') }}</td>
+
                     <td>{{ ucfirst($transaction->status) }}</td>
                     <td>
                         <a href="{{ route('transactions.show', $transaction->id) }}" class="btn btn-info btn-sm">Lihat</a>
